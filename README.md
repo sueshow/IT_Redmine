@@ -1,4 +1,4 @@
-# IT_Redmine
+# PM_Redmine
 
 ## 介紹 Redmine
 * 優缺點
