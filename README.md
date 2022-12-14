@@ -18,7 +18,7 @@
 
 
 ## 建立 Redmine
-* 使用的工具是 Docker(Google 的業餘開源專案)，主要是因為輕量、更易於擴充及分享的特性而選用
+* 使用的工具是 Docker (Google 的業餘開源專案)，主要是因為輕量、更易於擴充及分享的特性而選用
 * 安裝 Docker 及 Docker-compose 
   * 安裝連結：https://docs.docker.com/compose/install/
   * 安裝後開啟終端機，確認能取得版本，表示安裝成功
