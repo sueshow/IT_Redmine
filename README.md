@@ -64,6 +64,31 @@
 <br>
 
 
+## Redmine 和 Outlook 巨集
+* 目的：透過 Outlook 的巨集呼叫 Redmine API，新增 Redmine Issue
+* 紀錄重要資訊
+  * assigned_to_id 
+    * 登入後，把滑鼠游標移至右上角「登入者帳號」，畫面的左下角會有一個 URL
+    * 在網址：伺服器的網址/users/數字，數字即為assigned_to_id
+  * API 存取金鑰
+    * 點選「我的帳戶」
+    * 點選「API 存取金鑰」下的顯示，其即為 API 存取金鑰
+  * project_id
+    * 點選「我的帳戶」
+    * 按「F12」或「點右鍵」→ 檢查「Elements」
+    * 按「Ctrl+F」搜尋「project_id」，即可找到「1 ~ 多個符合的專案 id」
+* 匯入憑證
+  * 進入「控制台」 → 「網路和網際網路」 → 「網際網路選項」
+  * 點選頁籤「內容」 → 「憑證(C)」 → 頁籤「個人」 → 「匯入(I)...」
+  * 進行「匯入」
+    * 點選「下一步」
+    * 點選「瀏覽」 → 選擇憑證檔(.crt)，並點選「下一步」
+    * 不須輸入密碼，點選「下一步」
+    * 確認憑證存放區是選擇「個人」，並點選「下一步」
+    * 點選「完成」，可以看到匯入執行成功的訊息
+    * 確認「個人」
+<br>
+
 ## 參考資料
 * [半小時以 Docker 建立 Redmine 平台](https://nick-chen.medium.com/%E5%8D%8A%E5%B0%8F%E6%99%82%E4%BB%A5-docker-%E8%87%AA%E5%BB%BA-redmine-%E5%B9%B3%E5%8F%B0-e2f3e683fea5)
 * [Redmine](https://afunction.gitbooks.io/tools/content/pms/redmine.html)
