@@ -31,7 +31,7 @@
     ```
 * 設定 docker-compose 內容
   * MySQL：
-    * root帳密：root | password 或 admin | admin_password
+    * root帳密：root | password
   * phpMyAdmin：
     * 設定 MySQL 連線帳密及網路
     * 設定對外的 port 為 8080
@@ -39,8 +39,8 @@
     * 設定 MySQL 連線帳密及網路
     * 設定平台管理員帳密：admin | password
     * 設定對外的 port 為 80
-  * 尚須設定的資料：平台寄信信箱(預設使用 Gmail 的信箱寄信)
-    * 注意如有使用到已有二階段認證(如手機二次確認登入)的信箱，請申請一個應用程式密碼替代為密碼登入，不然可能沒辦法授權給平台使用寄信
+  * 尚須設定的資料：平台寄信信箱 (預設使用 Gmail 的信箱寄信)
+    * 注意如有使用到已有二階段認證 (如手機二次確認登入) 的信箱，請申請一個應用程式密碼替代為密碼登入，不然可能沒辦法授權給平台使用寄信
 * 建立 Redmine 平台
   * 開啟終端機，切換到與設定檔 (docker-compose.yml) 同個目錄下，然後執行
     > docker-compsoe up -d
