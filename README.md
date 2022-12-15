@@ -11,9 +11,11 @@
     * 有繁體中文介面可使用
   * 缺點
     * 要自己安裝，而且電腦要裝好 Ruby on Rails 的環境
-* 功能
-  * 免費版限制：1 project, 2 users, 10 customers, 500mb storage
-  * 功能：權限管理、自訂標籤、議題指派及監看、議題相關程式碼追蹤、markdown語法筆記
+* 功能：權限管理、自訂標籤、議題指派及監看、議題相關程式碼追蹤、markdown語法筆記
+* 其他
+  * [plan.io](https://plan.io/)公司 fork redmine 的程式碼實作成自己的版本，並為 redmine 增加更多功能。該公司提供按月付費使用和免費版
+    * 免費版限制：1 project, 2 users, 10 customers, 500mb storage
+    * 註冊網址：https://accounts.plan.io/signup/Bronze?locale=en
 <br>
 
 
@@ -94,5 +96,5 @@
 
 ## 參考資料
 * [半小時以 Docker 建立 Redmine 平台](https://nick-chen.medium.com/%E5%8D%8A%E5%B0%8F%E6%99%82%E4%BB%A5-docker-%E8%87%AA%E5%BB%BA-redmine-%E5%B9%B3%E5%8F%B0-e2f3e683fea5)
-* [Redmine 使用](https://afunction.gitbooks.io/tools/content/pms/redmine.html)
+* [plan.io 的 Redmine 使用說明](https://afunction.gitbooks.io/tools/content/pms/redmine.html)
 <br>
