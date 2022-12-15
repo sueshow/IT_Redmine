@@ -94,5 +94,5 @@
 
 ## 參考資料
 * [半小時以 Docker 建立 Redmine 平台](https://nick-chen.medium.com/%E5%8D%8A%E5%B0%8F%E6%99%82%E4%BB%A5-docker-%E8%87%AA%E5%BB%BA-redmine-%E5%B9%B3%E5%8F%B0-e2f3e683fea5)
-* [Redmine](https://afunction.gitbooks.io/tools/content/pms/redmine.html)
+* [Redmine 使用](https://afunction.gitbooks.io/tools/content/pms/redmine.html)
 <br>
