@@ -181,8 +181,13 @@
       Set GetFolderItemsfromPath = subFolder
   End Function
   ```
-
+* Outlook 巨集設定
+  * 進入 Outlook 點選「檔案」
+  * 點選「選項」 → 開啟 Outlook 選項視窗後，點選「信任中心」
+  * 「信任中心設定(I)」 → 開啟後，點選「巨集設定」 → 勾選「經過數位簽章的巨集會顯示通知，其他所有巨集會停用」或 「所有巨集都顯示通知」 → 點選「確定」
+* 
 <br>
+
 
 ## 參考資料
 * [半小時以 Docker 建立 Redmine 平台](https://nick-chen.medium.com/%E5%8D%8A%E5%B0%8F%E6%99%82%E4%BB%A5-docker-%E8%87%AA%E5%BB%BA-redmine-%E5%B9%B3%E5%8F%B0-e2f3e683fea5)
