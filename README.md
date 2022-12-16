@@ -132,7 +132,6 @@
   '    Resume ExitNewItem
   End Sub
 
-
   Sub createWarningProjectData(systemName As String, projectId As Integer, senderEmail As   String, subjectKeyword As String, folderPath As String)
       Dim specificFolder As Outlook.Folder
       Dim cusItemsObj As New CusItems
