@@ -92,6 +92,97 @@
     * 確認憑證存放區是選擇「個人」，並點選「下一步」
     * 點選「完成」，可以看到匯入執行成功的訊息
     * 確認頁籤「個人」下，會新增一個憑證檔
+* Outlook 目錄路徑
+  * 在信件所在資料夾，點右鍵 → 選「內容」
+* 編輯 VBA
+  ```
+  Option Explicit
+
+  Dim cusItemColl As Collection '存放多筆告警project的 Outlook.Folder.Items
+  Dim outlookApp As Outlook.Application
+  Dim olNs As Outlook.NameSpace
+  Dim redmineKey As String
+  Dim assignToId As Integer
+
+  Private Sub Application_Startup()
+      'On Error GoTo ErrorHandler
+    
+      Debug.Print ("startup")
+    
+      Dim colStores As Outlook.Stores
+      Dim oStore As Outlook.Store
+    
+      redmineKey = "放入API金鑰"           '請填入API金鑰
+      assignToId = 放入assignd_to_id       '請填入assignd_to_id
+   
+      Set cusItemColl = New Collection
+      Set outlookApp = Outlook.Application
+      Set olNs = Application.GetNamespace("MAPI")
+    
+      '有幾種告警信，就加上幾個對應的內容。createWarningProjectData 是 function name，每呼叫一次代表你想監測的一種告警
+      createWarningProjectData "放入你的系統簡稱", 放入project_id, "放入告警信的寄件者信箱", "放入告警信主旨的關鍵字串", "放入告警信放置路徑"
+    
+      Debug.Print ("  ")
+            
+  'ExitNewItem:
+  'Exit Sub
+     
+  'ErrorHandler:
+  '    Debug.Print (Err.Number & " - " & Err.Description)
+  '    Resume ExitNewItem
+  End Sub
+
+
+  Sub createWarningProjectData(systemName As String, projectId As Integer, senderEmail As   String, subjectKeyword As String, folderPath As String)
+      Dim specificFolder As Outlook.Folder
+      Dim cusItemsObj As New CusItems
+    
+      Set cusItemsObj = New CusItems
+        
+      Set cusItemsObj.App = Outlook.Application
+      Set specificFolder = GetFolderItemsfromPath(folderPath)
+      Debug.Print ("specificFolder.FolderPath" & specificFolder.folderPath)
+      Set cusItemsObj.items = specificFolder.items
+    
+      cusItemsObj.redmineKey = redmineKey
+      cusItemsObj.assignToId = assignToId
+      cusItemsObj.systemName = systemName
+      cusItemsObj.projectId = projectId
+      cusItemsObj.comparedSenderEmail = senderEmail
+      cusItemsObj.comparedSubject = subjectKeyword
+    
+      cusItemColl.Add cusItemsObj 'Collection加入這個新的CusItems
+  End Sub
+
+  Function GetFolderItemsfromPath(path As String) As Outlook.Folder
+      Dim myRootFolder As Outlook.Folder
+      Dim subFolder As Outlook.Folder
+      Dim newPath As String
+      Dim folderStr() As String
+      Dim J As Integer
+    
+      'path e.g. \\Sueshow'MailBox\收件匣\error
+      newPath = Replace(path, "\\", "")
+      'Debug.Print ("newPath: " & newPath)
+      folderStr = Split(newPath, "\")
+
+      For J = LBound(folderStr) To UBound(folderStr)
+          If J = 0 Then
+              Set myRootFolder = olNs.Folders(folderStr(J))
+              'Debug.Print ("myRootFolder.folderPath" & myRootFolder.folderPath)
+          Else
+              Set subFolder = myRootFolder.Folders(folderStr(J))
+              Set myRootFolder = subFolder '為了取得下一個folder
+              'Debug.Print ("subFolder.folderPath" & subFolder.folderPath)
+          End If
+      Next J
+    
+      'Debug.Print ("(Final)subfolder.folderPath" & subFolder.folderPath)
+
+      Set GetFolderItemsfromPath = subFolder
+  End Function
+  ```
+
 <br>
 
 ## 參考資料
