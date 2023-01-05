@@ -94,7 +94,7 @@
     * 確認頁籤「個人」下，會新增一個憑證檔
 * Outlook 目錄路徑
   * 在信件所在資料夾，點右鍵 → 選「內容」
-* 編輯 VBA
+* 編輯 VBA：vbaScript.txt
   ```
   Option Explicit
 
@@ -195,7 +195,173 @@
     * 出現訊息告知需重啟 Outlook，並點選「確定」 → 「完成」 → 「關閉」
     * 重新啟動 Outlook 後，需稍等待 Outlook 把 Exchange Server 上的 mail download 下來
 * Outlook 加上巨集(VBA)，並做數位簽名
-  * 在 Outlook 按 ALT+F11 會出現程式編輯視窗，
+  * 在 Outlook 按 ALT+F11 會出現程式編輯視窗，請 dobule click 視窗左側的「ThisOutlookSession」，視窗右側會出現對應的內容
+  * 【註】若「ThisOutlookSession」不是空白，表示原本已設定巨集，先將原內容備份到文字檔後，再把視窗內的內容清空，避免巨集發生衝突
+  * 把 vbaScript.txt 修改好的內容 copy 到「ThisOutlookSession」中，並點選「儲存」
+  * 匯入 CusItems.cls 檔
+    * 對「ThisOutlookSession」上方的專案「點右鍵」 → 點選「匯入檔案(I)...」 → 選擇「Cusltems.cls」 → 點選「開啟」
+      ```
+      # Cusltems.cls 的內容
+      VERSION 1.0 CLASS
+      BEGIN
+        MultiUse = -1  'True
+      END
+      Attribute VB_Name = "CusItems"
+      Attribute VB_GlobalNameSpace = False
+      Attribute VB_Creatable = False
+      Attribute VB_PredeclaredId = False
+      Attribute VB_Exposed = False
+      Public WithEvents App As Outlook.Application
+      Attribute App.VB_VarHelpID = -1
+      Public WithEvents items As Outlook.items
+      Attribute items.VB_VarHelpID = -1
+
+
+      Public redmineKey As String
+      Public assignToId As Integer
+      Public systemName As String
+      Public projectId As Integer, i As Integer
+      Public comparedSenderEmail As String
+      Public comparedSubject As String
+
+
+      Private Sub Class_Initialize()
+          '注意！這個空method不能移掉。這樣才會觸發事件
+      End Sub
+
+      Private Sub Items_ItemAdd(ByVal item As Object)
+          On Error GoTo ErrorHandler
+
+          Debug.Print ("***Items_ItemAdd start")
+    
+          Dim aErr
+          Dim http As Object
+          
+          Dim nowStr As String  '今天
+          Dim exEmail As String  '從信件中抓取 mail的寄件者
+          Dim dueDateStr As String  '完成日期
+          Dim addDays As Integer
+    
+          addDays = 3  '從今天開始加幾天為「完成日期」
+    
+          Debug.Print ("now: " & Format(Now, "YYYY-MM-DD hh:mm:ss"))
+
+ 
+          If (TypeOf item Is MailItem) Then
+              If item.SenderEmailType = "EX" Then  'Microsof Exchange
+                  exEmail = item.Sender.GetExchangeUser.PrimarySmtpAddress
+              Else  'SMTP
+                  exEmail = item.SenderEmailAddress
+              End If
+        
+      
+              Debug.Print ("mail subject: " & item.subject)
+              Debug.Print ("exEmail: " & exEmail)
+        
+        
+              nowStr = Format(Now, "YYYY-MM-DD")
+              dueDateStr = Format(DateAdd("d", addDays, Now), "YYYY-MM-DD")
+        
+        
+              Debug.Print ("systemName: " & systemName)
+              Debug.Print ("projectId: " & projectId)
+              Debug.Print ("comparedSenderEmail: " & comparedSenderEmail)
+              Debug.Print ("comparedSubject: " & comparedSubject)
+              Debug.Print ("InStr(Item.subject, comparedSubject) > 0: " & (InStr(item.subject, comparedSubject) > 0))
+              Debug.Print ("LCase(comparedSenderEmail) = LCase(exEmail): " & (LCase(comparedSenderEmail) = LCase(exEmail)))
+    
+    
+              If (InStr(item.subject, comparedSubject) > 0 And LCase(comparedSenderEmail) = LCase(exEmail)) Then '有subject字串 and comparedSenderEmail和寄件者相同
+                  Debug.Print ("Matched System is : " & systemName & ", matched mail subject ==> " & item.subject)
+        
+                  Dim receiveMailTimeStr As String
+                  Dim subjectStr As String
+                  Dim httpResult As String
+                  Dim jsonBodyStr As String
+                  Dim origMailBody As String
+                  Dim bodyLength As Integer
+        
+                  receiveMailTimeStr = Format(item.ReceivedTime, "YYYY-MM-DD hh:mm:ss")  '收到信件的日期
+                  subjectStr = "(收信時間: " & receiveMailTimeStr & ")" & Replace(item.subject, """", "")  '去掉"，要不然會造成json出錯
+                  origMailBody = Replace(Replace(Replace(Left(item.Body, 2000), """", ""), Chr(10), "\n"), Chr(13), "")  '取Body的前2000個字，並去掉", 換行符號[Chr(10), Chr(13)]，要不然會造成json出錯
+            
+                  Dim RegEx As Object
+                  Set RegEx = CreateObject("VBScript.RegExp")
+                  On Error Resume Next
+
+
+                  ' use RegEx 做 replace，是因為發現可能有些特殊字元，會造成send json給Redmine時，回400 Bad Request
+                  RegEx.Global = True
+                  RegEx.Pattern = "\s\\n"
+                  origMailBody = RegEx.Replace(origMailBody, "\n")
+                  RegEx.Pattern = "\\n\s"
+                  origMailBody = RegEx.Replace(origMailBody, "\n")
+                  RegEx.Pattern = "\\n\\n"
+                  origMailBody = RegEx.Replace(origMailBody, "\n")
+                  RegEx.Pattern = "\\r\\n"
+                  origMailBody = RegEx.Replace(origMailBody, "\n")
+            
+            
+                  jsonBodyStr = "{ ""issue"": { ""priority_id"": 1, ""status_id"": 1, ""tracker_id"": 4, ""project_id"": " & projectId & ", ""assigned_to_id"": " & assignToId & ", ""start_date"": """ & nowStr & """, ""subject"": """ & subjectStr & """, ""description"": """ & Trim(origMailBody) & """, ""due_date"": """ & dueDateStr & """ } }"
+                  Debug.Print ("jsonBodyStr: " & jsonBodyStr)
+         
+            
+                  Set http = CreateObject("Microsoft.XMLHTTP")
+                  On Error Resume Next
+                  http.Open "POST", "http://redmine.tstartel.com/issues.json", False
+                  aErr = Array(Err.Number, Err.Description)
+                  On Error GoTo 0
+            
+                  If 0 = aErr(0) Then
+                      http.setRequestHeader "CONTENT-TYPE", "application/json"
+                      http.setRequestHeader "X-Redmine-API-Key", redmineKey
+                      On Error Resume Next
+                      http.Send jsonBodyStr
+                      aErr = Array(Err.Number, Err.Description)
+                      On Error GoTo 0
+                
+                      Select Case True
+                          Case 0 <> aErr(0)
+                              Debug.Print ("Send failed: " & aErr(0) & ", " & aErr(1))
+                          Case 201 = http.Status 'success
+                              httpResult = http.responseText
+                              Debug.Print ("httpResult: " & httpResult)
+                          Case Else
+                              Debug.Print ("http.status: " & http.Status & " http.statusText: " & http.statusText)
+                      End Select
+            
+                  Else
+                      Debug.Print ("Open failed: " & aErr(0) & ", " & aErr(1))
+                  End If
+            
+                  Set http = Nothing
+            
+              End If
+        
+              Debug.Print ("  ")
+              
+          End If
+    
+
+          Debug.Print ("=====================================================")
+    
+    
+      ExitNewItem:
+      Exit Sub
+    
+    
+      ErrorHandler:
+          Debug.Print (Err.Number & " - " & Err.Description)
+          Resume ExitNewItem
+
+      End Sub
+      ```
+    * 匯入成功後可看見物件類別模組中出現 CusItems，點選「儲存」
+  * 為巨集加上數位簽名
+    * 點選「工具(I)」 → 「數位簽名(D)...」 
+    * 點選「選擇(C)...」 → 可以看見方才匯入的憑證，點「確定」 → 點「確定」 → 點選「儲存」 → 關閉並回到 Microsoft Outlook
+  * 關閉 Outlook，會詢問是否要儲存 VBA 專案，點選「是」
+  * 再次開啟 Outlook 時，請點選「顯示簽章詳細資料」 → 確認憑證後關閉 → 「信任來自於這個發行者的所有文件」
 <br>
 
 
